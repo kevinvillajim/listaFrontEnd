@@ -21,7 +21,7 @@ const ProfileEdit = () => {
 			phone: user.phone || "",
 			email: user.email || "",
 			password: user.password || "",
-			photo: user.avatar || "",
+			photo: user.avatar || "/avatar.png",
 		});
 	}, []);
 
@@ -75,7 +75,7 @@ const ProfileEdit = () => {
 	};
 
 	return (
-		<div className="flex flex-col h-screen bg-gray-200 dark:bg-gray-800">
+		<div className="flex flex-col h-screen bg-gray-800">
 			<header
 				className={`w-[100%] h-[5rem] flex justify-between items-center px-[2rem] shadow-sm my-[0.5rem]`}
 			>
@@ -97,7 +97,7 @@ const ProfileEdit = () => {
 					onClick={handleModalClick}
 				>
 					<img
-						src={user.avatar ? user.avatar : "/avatarDef.png"}
+						src={user.avatar || "/avatar.png"}
 						alt={user.name + "avatar"}
 						className="w-[2.5rem] h-[2.5rem] rounded-full object-cover"
 					/>
@@ -121,19 +121,19 @@ const ProfileEdit = () => {
 			<div className="w-[100%] flex justify-center">
 				<div className=" w-[98%] md:w-[35%] py-3">
 					<div className="mb-2 md:mb-8 text-center">
-						<h1 className="font-bold text-2xl md:text-3xl mb-2 text-gray-800 dark:text-gray-400">
+						<h1 className="font-bold text-2xl md:text-3xl mb-2 text-gray-400">
 							Cambiar Información
 						</h1>
-						<h3 className="text-sm text-gray-600 dark:text-gray-400">
+						<h3 className="text-sm  text-gray-400">
 							Los cambios se verán reflejados en toda la plataforma
 						</h3>
 					</div>
 					<form
-						className="border border-gray-200 dark:border-gray-700 rounded-xl p-3 md:p-6"
+						className="border border-gray-700 rounded-xl p-3 md:p-6"
 						onSubmit={handleSubmit}
 					>
 						<div className="mb-3 md:mb-6">
-							<label className="block text-gray-500 text-xs font-medium mb-1 dark:text-gray-400">
+							<label className="block text-xs font-medium mb-1 text-gray-400">
 								FOTO
 							</label>
 							<div className="flex items-center">
@@ -159,7 +159,7 @@ const ProfileEdit = () => {
 							</div>
 						</div>
 						<div className="mb-3 md:mb-6">
-							<label className="block text-gray-500 text-xs font-medium mb-1 dark:text-gray-400">
+							<label className="block  text-xs font-medium mb-1 text-gray-400">
 								NOMBRE
 							</label>
 							<input
@@ -168,37 +168,11 @@ const ProfileEdit = () => {
 								value={userData.name}
 								onChange={handleChange}
 								placeholder="Enter your name..."
-								className="w-full border border-gray-300 rounded-md p-2 dark:bg-gray-700 dark:text-gray-400"
+								className="w-full border border-gray-300 rounded-md p-2 bg-gray-700 text-gray-400"
 							/>
 						</div>
 						<div className="mb-3 md:mb-6">
-							<label className="block text-gray-500 text-xs font-medium mb-1 dark:text-gray-400">
-								BIO
-							</label>
-							<input
-								type="text"
-								name="bio"
-								value={userData.bio}
-								onChange={handleChange}
-								placeholder="Enter your bio..."
-								className="w-full border border-gray-300 rounded-md p-2 dark:bg-gray-700 dark:text-gray-400"
-							/>
-						</div>
-						<div className="mb-3 md:mb-6">
-							<label className="block text-gray-500 text-xs font-medium mb-1 dark:text-gray-400">
-								TELÉFONO
-							</label>
-							<input
-								type="text"
-								name="phone"
-								value={userData.phone}
-								onChange={handleChange}
-								placeholder="Enter your phone..."
-								className="w-full border border-gray-300 rounded-md p-2 dark:bg-gray-700 dark:text-gray-400"
-							/>
-						</div>
-						<div className="mb-3 md:mb-6">
-							<label className="block text-gray-500 text-xs font-medium mb-1 dark:text-gray-400">
+							<label className="block  text-xs font-medium mb-1 text-gray-400">
 								EMAIL
 							</label>
 							<input
@@ -207,11 +181,11 @@ const ProfileEdit = () => {
 								value={userData.email}
 								onChange={handleChange}
 								placeholder="Enter your email..."
-								className="w-full border border-gray-300 rounded-md p-2 dark:bg-gray-700 dark:text-gray-400"
+								className="w-full border border-gray-300 rounded-md p-2 bg-gray-700 text-gray-400"
 							/>
 						</div>
 						<div className="mb-3 md:mb-6">
-							<label className="block text-gray-500 text-xs font-medium mb-1 dark:text-gray-400">
+							<label className="block  text-xs font-medium mb-1 text-gray-400">
 								PASSWORD
 							</label>
 							<input
@@ -220,7 +194,7 @@ const ProfileEdit = () => {
 								value={userData.password}
 								onChange={handleChange}
 								placeholder="Change your password..."
-								className="w-full border border-gray-300 rounded-md p-2 dark:bg-gray-700 dark:text-gray-400"
+								className="w-full border border-gray-300 rounded-md p-2 bg-gray-700 text-gray-400"
 							/>
 						</div>
 						<div className="flex justify-end">
@@ -245,8 +219,7 @@ const ProfileEdit = () => {
 							</a>
 						</div>
 						<div>
-							<div className="text-xs dark:text-gray-600">Sinergy Hard ©</div>
-							<div className="text-xs dark:text-gray-600">
+							<div className="text-xs text-gray-600">
 								Esparta Agencia Creativa ©
 							</div>
 						</div>

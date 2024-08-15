@@ -1,7 +1,9 @@
 import ComplexNavbar from "../components/NavBar";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import api from "../components/api";
 export default function Asistencias() {
-	// Simulación de datos obtenidos del backend
+	const [attendances, setAttendances] = useState([]);
+
 	const today = new Date().toLocaleDateString("es-EC", {
 		year: "numeric",
 		month: "long",
@@ -14,21 +16,25 @@ export default function Asistencias() {
 		day: "numeric",
 	});
 
-	const [attendances, setAttendances] = useState([
-		{
-			id: 1,
-			name: "Juan Perez",
-			img: "/avatar.png",
-			attended: false,
-		},
-		{
-			id: 2,
-			name: "Pedro Perez",
-			img: "https://demos.creative-tim.com/test/corporate-ui-dashboard/assets/img/team-3.jpg",
-			attended: true,
-		},
-	]);
+	useEffect(() => {
+		getMiembros();
+	}, []);
 
+	const getMiembros = async () => {
+		try {
+			const response = await api.get("/miembros");
+			setAttendances(
+				response.data.map((miembro) => ({
+					id: miembro.id,
+					name: miembro.name,
+					avatar: miembro.avatar || "/avatar.png",
+					attended: false,
+				}))
+			);
+		} catch (error) {
+			console.error(error);
+		}
+	};
 	// Manejar el cambio de asistencia
 	const handleAttendanceChange = (id) => {
 		setAttendances((prevAttendances) =>
@@ -68,7 +74,7 @@ export default function Asistencias() {
 						>
 							<div className="flex items-center">
 								<img
-									src={attendance.img}
+									src={attendance.avatar}
 									alt={attendance.name}
 									className="w-12 h-12 rounded-full mr-4"
 								/>

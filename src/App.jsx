@@ -6,6 +6,7 @@ import Dashboard from "./views/Dashboard.jsx";
 import Users from "./views/Users.jsx";
 import Miembros from "./views/Miembros.jsx";
 import Asistencias from "./views/Asistencias.jsx";
+import Logout from "./views/Logout.jsx";
 // import {useEffect, useRef} from "react";
 import {
 	BrowserRouter as Router,
@@ -95,6 +96,7 @@ function App() {
 						// </PrivateRoute>
 					}
 				/>
+				<Route path="/logout" element={<Logout />} />
 				{/* <PrivateRoute> */}
 				{/* <Routes> */}
 				<Route path="dashboard" element={<Dashboard />} />

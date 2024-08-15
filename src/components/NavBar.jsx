@@ -21,6 +21,7 @@ import {
 	UsersIcon,
 	ListBulletIcon,
 } from "@heroicons/react/24/solid";
+import {getFromLocalStorage} from "../components/Cript";
 
 <svg
 	xmlns="http://www.w3.org/2000/svg"
@@ -164,8 +165,9 @@ function NavList() {
 	);
 }
 
-export default function ComplexNavbar({avatar}) {
+export default function ComplexNavbar() {
 	const [isNavOpen, setIsNavOpen] = React.useState(false);
+	const user = JSON.parse(getFromLocalStorage("user"));
 
 	const toggleIsNavOpen = () => setIsNavOpen((cur) => !cur);
 
@@ -198,7 +200,7 @@ export default function ComplexNavbar({avatar}) {
 				>
 					<Bars2Icon className="h-6 w-6" />
 				</IconButton>
-				<ProfileMenu avatar={avatar} />
+				<ProfileMenu avatar={user.avatar || "/avatar.png"} />
 			</div>
 			<Collapse open={isNavOpen} className="overflow-scroll">
 				<NavList />

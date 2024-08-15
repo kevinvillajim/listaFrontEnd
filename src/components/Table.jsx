@@ -8,7 +8,11 @@ export default function Table({
 	option1,
 	option2,
 	option3,
-	tableData,
+	headers,
+	data,
+	onClickBtn2,
+	handleEditClick,
+	handleDeleteClick,
 }) {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [activeFilter, setActiveFilter] = useState("todos");
@@ -24,7 +28,7 @@ export default function Table({
 
 	// Función de búsqueda
 	const filteredData = useMemo(() => {
-		return tableData.data.filter((item) => {
+		return data.filter((item) => {
 			const searchString = searchTerm.toLowerCase();
 			return (
 				item.name.toLowerCase().includes(searchString) ||
@@ -33,7 +37,7 @@ export default function Table({
 				(item.active ? "activo" : "menos activo").includes(searchString)
 			);
 		});
-	}, [tableData.data, searchTerm]);
+	}, [data, searchTerm]);
 
 	// Función de filtrado
 	const filteredAndSortedData = useMemo(() => {
@@ -93,6 +97,12 @@ export default function Table({
 		}
 	};
 
+	const handleSendWhatsapp = (phone, name) => {
+		const nameSanitizado = name.replace(" ", "%20");
+		const url = `https://api.whatsapp.com/send?phone=${phone}&text=Hola%20${nameSanitizado},%20¿cómo%20estás?`;
+		window.open(url, "_blank");
+	};
+
 	return (
 		<div className="relative flex flex-col w-full h-full text-gray-700 bg-white shadow-md rounded-xl bg-clip-border">
 			<div className="relative mx-4 mt-4 overflow-hidden text-gray-700 bg-white rounded-none bg-clip-border">
@@ -115,6 +125,7 @@ export default function Table({
 						<button
 							className="flex select-none items-center gap-3 rounded-lg bg-gray-900 py-2 px-4 text-center align-middle font-sans text-xs font-bold uppercase text-white shadow-md shadow-gray-900/10 transition-all hover:shadow-lg hover:shadow-gray-900/20 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
 							type="button"
+							onClick={onClickBtn2}
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -209,7 +220,7 @@ export default function Table({
 				<table className="w-full mt-4 text-left table-auto min-w-max">
 					<thead>
 						<tr>
-							{tableData.headers.map((header, index) => (
+							{headers.map((header, index) => (
 								<th
 									className="p-4 transition-colors cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 hover:bg-blue-gray-50"
 									key={index}
@@ -243,7 +254,7 @@ export default function Table({
 								<td className="p-4 border-b border-blue-gray-50">
 									<div className="flex items-center gap-3">
 										<img
-											src={data.img}
+											src={data.avatar || "/avatar.png"}
 											alt={data.name}
 											className="relative inline-block h-9 w-9 !rounded-full object-cover object-center"
 										/>
@@ -289,6 +300,7 @@ export default function Table({
 									<button
 										className="relative h-10 max-h-[40px] w-10 max-w-[40px] select-none rounded-lg text-center align-middle font-sans text-xs font-medium uppercase text-gray-900 transition-all hover:bg-gray-900/10 active:bg-gray-900/20 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
 										type="button"
+										onClick={() => handleEditClick(data)}
 									>
 										<span className="absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
 											<svg
@@ -305,6 +317,7 @@ export default function Table({
 									<button
 										className="relative h-10 max-h-[40px] w-10 max-w-[40px] select-none rounded-lg text-center align-middle font-sans text-xs font-medium uppercase text-gray-900 transition-all hover:bg-gray-900/10 active:bg-gray-900/20 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
 										type="button"
+										onClick={() => handleSendWhatsapp(data.phone, data.name)}
 									>
 										<span className="absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
 											<svg
@@ -352,6 +365,7 @@ export default function Table({
 									<button
 										className="relative h-10 max-h-[40px] w-10 max-w-[40px] select-none rounded-lg text-center align-middle font-sans text-xs font-medium uppercase text-gray-900 transition-all hover:bg-gray-900/10 active:bg-gray-900/20 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
 										type="button"
+										onClick={() => handleDeleteClick(data.id)}
 									>
 										<span className="absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
 											<svg
