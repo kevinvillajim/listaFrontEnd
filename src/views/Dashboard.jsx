@@ -13,6 +13,7 @@ import {
 	PointElement,
 } from "chart.js";
 import ComplexNavbar from "../components/NavBar";
+import api from "../components/api";
 
 // Registra los componentes necesarios para Chart.js
 ChartJS.register(
@@ -35,24 +36,33 @@ export default function Dashboard() {
 
 	// Obtener los datos al montar el componente
 	useEffect(() => {
-		// Aquí harías las llamadas al backend para obtener los datos
-		// Simulación de datos
 		const fetchData = async () => {
-			// Datos simulados
-			setAttendanceData([
-				{date: "01/08/2024", attended: 30, total: 40},
-				{date: "08/08/2024", attended: 35, total: 40},
-				{date: "15/08/2024", attended: 28, total: 40},
-				{date: "22/08/2024", attended: 40, total: 40},
-			]);
-			setActiveMembers([
-				{name: "Juan Perez", attendance: 15},
-				{name: "Pedro Perez", attendance: 10},
-			]);
-			setInactiveMembers([
-				{name: "Maria Lopez", attendance: 5},
-				{name: "Luis Gomez", attendance: 2},
-			]);
+			try {
+				const response = await api.get("/asistencias/chart");
+				setAttendanceData(response.data);
+			} catch (error) {
+				console.error("Error al obtener los datos de asistencias", error);
+			}
+			try {
+				const response = await api.get("miembros/activity");
+				const activityData = response.data;
+				setActiveMembers([
+					{name: "Activos", attendance: activityData.active},
+					{name: "Menos Activos", attendance: activityData.inactive},
+				]);
+			} catch (error) {
+				console.error("Error al obtener los datos de actividad", error);
+			}
+			try {
+				const response = await api.get("miembros/calling");
+				const callingData = response.data;
+				setInactiveMembers([
+					{name: "Con llamamiento", attendance: callingData.calling},
+					{name: "Sin llamamiento", attendance: callingData.noCalling},
+				]);
+			} catch (error) {
+				console.error("Error al obtener los datos de llamamientos", error);
+			}
 		};
 		fetchData();
 	}, []);
@@ -174,9 +184,11 @@ export default function Dashboard() {
 						</div>
 					</div>
 
-					{/* Gráfico de Miembros Activos */}
+					{/* Gráfico de Actividad */}
 					<div className="bg-white p-4 rounded-lg shadow-md">
-						<h2 className="text-xl font-semibold mb-4">Miembros Activos</h2>
+						<h2 className="text-xl font-semibold mb-4">
+							Actividad de los Miembros
+						</h2>
 						<div className="w-full h-80">
 							<Pie
 								data={activeMembersData}
@@ -195,10 +207,10 @@ export default function Dashboard() {
 						</div>
 					</div>
 
-					{/* Gráfico de Miembros Menos Activos */}
+					{/* Gráfico de Llamamientos */}
 					<div className="bg-white p-4 rounded-lg shadow-md">
 						<h2 className="text-xl font-semibold mb-4">
-							Miembros Menos Activos
+							Llamamiento de los Miembros
 						</h2>
 						<div className="w-full h-80">
 							<Pie

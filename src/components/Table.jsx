@@ -1,4 +1,15 @@
-import {useState, useMemo} from "react";
+import {useState, useMemo, useEffect} from "react";
+import api from "../components/api";
+import moment from "moment";
+
+const columnMap = {
+	Nombre: "name",
+	Teléfono: "phone",
+	Llamamiento: "calling",
+	Organización: "organization",
+	Estado: "active",
+	"Última Asistencia": "lastAttendance",
+};
 
 export default function Table({
 	title,
@@ -9,7 +20,6 @@ export default function Table({
 	option2,
 	option3,
 	headers,
-	data,
 	onClickBtn2,
 	handleEditClick,
 	handleDeleteClick,
@@ -18,26 +28,64 @@ export default function Table({
 	const [activeFilter, setActiveFilter] = useState("todos");
 	const [sortColumn, setSortColumn] = useState(null);
 	const [sortDirection, setSortDirection] = useState("asc");
+	const [miembrosData, setMiembrosData] = useState([]);
+	const [loading, setLoading] = useState(true);
 
-	const columnMap = {
-		Miembro: "name",
-		Llamamiento: "calling",
-		Estado: "active",
-		"Ultima Asistencia": "lastAttendance",
+	useEffect(() => {
+		fetchMiembros();
+	}, []);
+
+	const fetchMiembros = async () => {
+		try {
+			const basicResponse = await api.get("/miembros");
+
+			// Combinar los datos básicos con la lógica de asistencia
+			let combinedData = basicResponse.data.map((basicMiembro) => {
+				return {
+					...basicMiembro,
+					lastAttendance: basicMiembro.lastAttendance || null,
+					active: isActive(basicMiembro.lastAttendance),
+				};
+			});
+
+			setMiembrosData(combinedData);
+		} catch (error) {
+			console.error(
+				"Error fetching Miembros data:",
+				error.response?.data || error.message
+			);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const isActive = (lastAttendance) => {
+		const today = new Date();
+		const oneMonthAgo = new Date(
+			today.getFullYear(),
+			today.getMonth() - 1,
+			today.getDate()
+		);
+
+		const lastAttendanceDate = lastAttendance ? new Date(lastAttendance) : null;
+
+		// Si la última asistencia es más antigua que un mes o es nula, se considera inactivo
+		return lastAttendanceDate && lastAttendanceDate >= oneMonthAgo;
 	};
 
 	// Función de búsqueda
 	const filteredData = useMemo(() => {
-		return data.filter((item) => {
+		return miembrosData.filter((item) => {
 			const searchString = searchTerm.toLowerCase();
 			return (
 				item.name.toLowerCase().includes(searchString) ||
 				item.phone.toLowerCase().includes(searchString) ||
 				(item.calling && item.calling.toLowerCase().includes(searchString)) ||
-				(item.active ? "activo" : "menos activo").includes(searchString)
+				(searchString === "activo" && item.active) ||
+				(searchString === "menos activo" && !item.active)
 			);
 		});
-	}, [data, searchTerm]);
+	}, [miembrosData, searchTerm]);
 
 	// Función de filtrado
 	const filteredAndSortedData = useMemo(() => {
@@ -102,6 +150,12 @@ export default function Table({
 		const url = `https://api.whatsapp.com/send?phone=${phone}&text=Hola%20${nameSanitizado},%20¿cómo%20estás?`;
 		window.open(url, "_blank");
 	};
+
+	useEffect(() => {
+		if (!loading && miembrosData.length > 0) {
+			// Aquí puedes realizar acciones adicionales o simplemente dejar que el componente se renderice.
+		}
+	}, [loading, miembrosData]);
 
 	return (
 		<div className="relative flex flex-col w-full h-full text-gray-700 bg-white shadow-md rounded-xl bg-clip-border">
@@ -281,8 +335,10 @@ export default function Table({
 								<td className="p-4 border-b border-blue-gray-50">
 									<div className="w-max">
 										<div
-											className={`relative grid items-center px-2 py-1 font-sans text-xs font-bold text - green - 900 ${
-												data.active ? "bg-green-500/20" : "bg-blue-gray-500/20"
+											className={`relative grid items-center px-2 py-1 font-sans text-xs font-bold ${
+												data.active
+													? "bg-green-500/20 text-green-900"
+													: "bg-blue-gray-500/20 text-black"
 											} uppercase rounded-md select-none whitespace-nowrap`}
 										>
 											<span className="">
@@ -293,7 +349,9 @@ export default function Table({
 								</td>
 								<td className="p-4 border-b border-blue-gray-50">
 									<p className="block font-sans text-sm antialiased font-normal leading-normal text-blue-gray-900">
-										{data.lastAttendance}
+										{data.lastAttendance
+											? moment(data.lastAttendance).format("DD/MM/YYYY")
+											: "Sin Asistencias"}
 									</p>
 								</td>
 								<td className="p-4 border-b border-blue-gray-50">
