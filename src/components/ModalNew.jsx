@@ -66,7 +66,7 @@ export default function ModalNew({
 								</div>
 							))}
 							<input
-								className="bg-[#017cfe] text-[#fff] rounded-md px-[1rem] py-[0.4rem] w-[100%] mt-[1rem] text-[16px] cursor-pointer animatedBgButtons"
+								className="bg-black text-[#fff] rounded-md px-[1rem] py-[0.4rem] w-[100%] mt-[1rem] text-[16px] cursor-pointer animatedBgButtons"
 								type="submit"
 								value="Crear"
 							/>

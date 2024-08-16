@@ -52,9 +52,13 @@ export default function Asistencias() {
 
 		try {
 			const response = await api.post("/asistencias", attendanceData);
-			setMessage("Asistencias guardadas", response);
+			console.log(response.data);
+			setMessage("Asistencias guardadas exitosamente");
 		} catch (error) {
-			setMessage(error);
+			setMessage(
+				error.response?.data?.message ||
+					"Ocurrió un error al guardar la asistencia"
+			);
 		}
 	};
 

@@ -1,6 +1,7 @@
 import {useState, useMemo, useEffect} from "react";
 import api from "../components/api";
 import moment from "moment";
+import ModalFile from "../components/ModalFile";
 
 const columnMap = {
 	Nombre: "name",
@@ -29,6 +30,7 @@ export default function Table({
 	const [sortColumn, setSortColumn] = useState(null);
 	const [sortDirection, setSortDirection] = useState("asc");
 	const [miembrosData, setMiembrosData] = useState([]);
+	const [showModalFile, setShowModalFile] = useState(false);
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
@@ -44,7 +46,7 @@ export default function Table({
 				return {
 					...basicMiembro,
 					lastAttendance: basicMiembro.lastAttendance || null,
-					active: isActive(basicMiembro.lastAttendance),
+					active: basicMiembro.active,
 				};
 			});
 
@@ -57,20 +59,6 @@ export default function Table({
 		} finally {
 			setLoading(false);
 		}
-	};
-
-	const isActive = (lastAttendance) => {
-		const today = new Date();
-		const oneMonthAgo = new Date(
-			today.getFullYear(),
-			today.getMonth() - 1,
-			today.getDate()
-		);
-
-		const lastAttendanceDate = lastAttendance ? new Date(lastAttendance) : null;
-
-		// Si la última asistencia es más antigua que un mes o es nula, se considera inactivo
-		return lastAttendanceDate && lastAttendanceDate >= oneMonthAgo;
 	};
 
 	// Función de búsqueda
@@ -173,6 +161,7 @@ export default function Table({
 						<button
 							className="select-none rounded-lg border border-gray-900 py-2 px-4 text-center align-middle font-sans text-xs font-bold uppercase text-gray-900 transition-all hover:opacity-75 focus:ring focus:ring-gray-300 active:opacity-[0.85] disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
 							type="button"
+							onClick={() => setShowModalFile(!showModalFile)}
 						>
 							{btn1}
 						</button>
@@ -336,13 +325,19 @@ export default function Table({
 									<div className="w-max">
 										<div
 											className={`relative grid items-center px-2 py-1 font-sans text-xs font-bold ${
-												data.active
+												data.active === 1
 													? "bg-green-500/20 text-green-900"
-													: "bg-blue-gray-500/20 text-black"
+													: data.active === 2
+													? "bg-yellow text-white"
+													: "bg-red-500/20 text-red-900"
 											} uppercase rounded-md select-none whitespace-nowrap`}
 										>
 											<span className="">
-												{data.active ? "Activo" : "Menos Activo"}
+												{data.active === 1
+													? "Activo"
+													: data.active === 2
+													? "Casi Activo"
+													: "Menos Activo"}
 											</span>
 										</div>
 									</div>
@@ -446,6 +441,7 @@ export default function Table({
 					</tbody>
 				</table>
 			</div>
+			{showModalFile && <ModalFile setShowModalFile={setShowModalFile} />}
 		</div>
 	);
 }
