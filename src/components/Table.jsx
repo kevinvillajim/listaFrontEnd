@@ -24,6 +24,7 @@ export default function Table({
 	onClickBtn2,
 	handleEditClick,
 	handleDeleteClick,
+	handleWhastappModal,
 }) {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [activeFilter, setActiveFilter] = useState("todos");
@@ -131,12 +132,6 @@ export default function Table({
 			setSortColumn(column);
 			setSortDirection("asc");
 		}
-	};
-
-	const handleSendWhatsapp = (phone, name) => {
-		const nameSanitizado = name.replace(" ", "%20");
-		const url = `https://api.whatsapp.com/send?phone=${phone}&text=Hola%20${nameSanitizado},%20¿cómo%20estás?`;
-		window.open(url, "_blank");
 	};
 
 	useEffect(() => {
@@ -370,7 +365,9 @@ export default function Table({
 									<button
 										className="relative h-10 max-h-[40px] w-10 max-w-[40px] select-none rounded-lg text-center align-middle font-sans text-xs font-medium uppercase text-gray-900 transition-all hover:bg-gray-900/10 active:bg-gray-900/20 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
 										type="button"
-										onClick={() => handleSendWhatsapp(data.phone, data.name)}
+										onClick={() => {
+											handleWhastappModal(data.phone, data.name);
+										}}
 									>
 										<span className="absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
 											<svg

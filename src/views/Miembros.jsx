@@ -4,13 +4,16 @@ import Table from "../components/Table";
 import api from "../components/api";
 import ModalNew from "../components/ModalNew";
 import ModalEditMiembro from "../components/ModalEditMiembro";
+import ModalWhatsapp from "../components/ModalWhatsapp";
 
 export default function Miembros() {
 	const [showModalNew, setShowModalNew] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [miembrosData, setMiembrosData] = useState([]);
 	const [selectedMiembro, setSelectedMiembro] = useState(null);
+	const [memberReceiver, setMemberReceiver] = useState(null);
 	const [showModalEdit, setShowModalEdit] = useState(false);
+	const [showWhatsappModal, setShowWhatsappModal] = useState(false);
 
 	useEffect(() => {
 		fetchMiembros();
@@ -48,6 +51,11 @@ export default function Miembros() {
 	const handleEditClick = (miembroId) => {
 		setSelectedMiembro(miembroId);
 		setShowModalEdit(true);
+	};
+
+	const handleWhastappModal = (phone, name) => {
+		setShowWhatsappModal(true);
+		setMemberReceiver({phone: phone, name: name});
 	};
 
 	const handleEditMiembro = async (id, updatedData) => {
@@ -107,6 +115,7 @@ export default function Miembros() {
 					onClickBtn2={() => setShowModalNew(!showModalNew)}
 					handleEditClick={handleEditClick}
 					handleDeleteClick={handleDeleteClick}
+					handleWhastappModal={handleWhastappModal}
 				/>
 			</div>
 			{showModalNew && (
@@ -165,6 +174,12 @@ export default function Miembros() {
 							style: "",
 						},
 					]}
+				/>
+			)}
+			{showWhatsappModal && (
+				<ModalWhatsapp
+					setShowModal={setShowWhatsappModal}
+					memberReceiver={memberReceiver}
 				/>
 			)}
 		</>
