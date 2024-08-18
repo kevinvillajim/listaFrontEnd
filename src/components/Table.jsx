@@ -2,6 +2,7 @@ import {useState, useMemo, useEffect} from "react";
 import api from "../components/api";
 import moment from "moment";
 import ModalFile from "../components/ModalFile";
+import ModalDates from "../components/ModalDates";
 
 const columnMap = {
 	Nombre: "name",
@@ -20,6 +21,7 @@ export default function Table({
 	option1,
 	option2,
 	option3,
+	option4,
 	headers,
 	onClickBtn2,
 	handleEditClick,
@@ -32,11 +34,25 @@ export default function Table({
 	const [sortDirection, setSortDirection] = useState("asc");
 	const [miembrosData, setMiembrosData] = useState([]);
 	const [showModalFile, setShowModalFile] = useState(false);
+	const [selectedMiembro, setSelectedMiembro] = useState(null);
+	const [showModalDates, setShowModalDates] = useState(false);
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
 		fetchMiembros();
 	}, []);
+
+	const dateToActivity = (date) => {
+		const today = new Date();
+		const lastAttendance = new Date(date);
+		const diffTime = Math.abs(today - lastAttendance);
+		const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Convertir diferencia a días
+
+		if (!date) return 3;
+		if (diffDays <= 15) return 1; // Menos de 15 días
+		if (diffDays <= 30) return 2; // Menos de 1 mes (30 días)
+		return 3; // Más de 1 mes
+	};
 
 	const fetchMiembros = async () => {
 		try {
@@ -67,11 +83,15 @@ export default function Table({
 		return miembrosData.filter((item) => {
 			const searchString = searchTerm.toLowerCase();
 			return (
-				item.name.toLowerCase().includes(searchString) ||
-				item.phone.toLowerCase().includes(searchString) ||
-				(item.calling && item.calling.toLowerCase().includes(searchString)) ||
-				(searchString === "activo" && item.active) ||
-				(searchString === "menos activo" && !item.active)
+				(item.name?.toLowerCase() || "").includes(searchString) ||
+				(item.phone?.toLowerCase() || "").includes(searchString) ||
+				(item.calling?.toLowerCase() || "").includes(searchString) ||
+				(searchString === "activo" &&
+					dateToActivity(item.lastAttendance) === 1) ||
+				(searchString === "casi activo" &&
+					dateToActivity(item.lastAttendance) === 2) ||
+				(searchString === "menos activo" &&
+					dateToActivity(item.lastAttendance) === 3)
 			);
 		});
 	}, [miembrosData, searchTerm]);
@@ -81,9 +101,19 @@ export default function Table({
 		let result = [...filteredData];
 
 		if (activeFilter !== "todos") {
-			result = result.filter((item) =>
-				activeFilter === "activos" ? item.active : !item.active
-			);
+			result = result.filter((item) => {
+				const activity = dateToActivity(item.lastAttendance);
+				switch (activeFilter) {
+					case "activos":
+						return activity === 1;
+					case "casiActivos":
+						return activity === 2;
+					case "menosActivos":
+						return activity === 3;
+					default:
+						return true;
+				}
+			});
 		}
 
 		if (sortColumn) {
@@ -93,18 +123,23 @@ export default function Table({
 				let bValue = b[dataKey];
 
 				// Manejo especial para el estado (active)
-				if (dataKey === "active") {
-					return sortDirection === "asc"
-						? a.active === b.active
-							? 0
-							: a.active
-							? -1
-							: 1
-						: a.active === b.active
-						? 0
-						: a.active
-						? 1
-						: -1;
+				// if (dataKey === "active") {
+				// 	return sortDirection === "asc"
+				// 		? a.active === b.active
+				// 			? 0
+				// 			: a.active
+				// 			? -1
+				// 			: 1
+				// 		: a.active === b.active
+				// 		? 0
+				// 		: a.active
+				// 		? 1
+				// 		: -1;
+				// }
+
+				if (sortColumn === "Estado") {
+					aValue = dateToActivity(a.lastAttendance);
+					bValue = dateToActivity(b.lastAttendance);
 				}
 
 				// Manejo para valores undefined o null
@@ -211,12 +246,23 @@ export default function Table({
 								<li
 									role="tab"
 									className={`relative flex items-center justify-center w-full h-full px-2 py-1 font-sans text-base antialiased font-normal leading-relaxed text-center bg-transparent cursor-pointer select-none text-blue-gray-900 rounded-md ${
+										activeFilter === "casiActivos" ? "bg-white shadow" : ""
+									}`}
+									onClick={() => setActiveFilter("casiActivos")}
+								>
+									<div className="flex flex-wrap z-20 text-inherit">
+										&nbsp;&nbsp;{option3}&nbsp;&nbsp;
+									</div>
+								</li>
+								<li
+									role="tab"
+									className={`relative flex items-center justify-center w-full h-full px-2 py-1 font-sans text-base antialiased font-normal leading-relaxed text-center bg-transparent cursor-pointer select-none text-blue-gray-900 rounded-md ${
 										activeFilter === "menosActivos" ? "bg-white shadow" : ""
 									}`}
 									onClick={() => setActiveFilter("menosActivos")}
 								>
 									<div className="flex flex-wrap z-20 text-inherit">
-										&nbsp;&nbsp;{option3}&nbsp;&nbsp;
+										&nbsp;&nbsp;{option4}&nbsp;&nbsp;
 									</div>
 								</li>
 							</ul>
@@ -311,26 +357,34 @@ export default function Table({
 										<p className="block font-sans text-sm antialiased font-normal leading-normal text-blue-gray-900">
 											{data.calling ? data.calling : "Sin llamamiento"}
 										</p>
-										<p className="block font-sans text-sm antialiased font-normal leading-normal text-blue-gray-900 opacity-70">
-											{data.organization ? data.organization : "No asignado"}
-										</p>
 									</div>
 								</td>
 								<td className="p-4 border-b border-blue-gray-50">
-									<div className="w-max">
+									<p className="block font-sans text-sm antialiased font-normal leading-normal text-blue-gray-900 opacity-70">
+										{data.organization ? data.organization : "No asignado"}
+									</p>
+								</td>
+								<td className="p-4 border-b border-blue-gray-50">
+									<div
+										className="w-max"
+										onClick={() => {
+											setSelectedMiembro(data.id);
+											setShowModalDates(true);
+										}}
+									>
 										<div
 											className={`relative grid items-center px-2 py-1 font-sans text-xs font-bold ${
-												data.active === 1
+												dateToActivity(data.lastAttendance) === 1
 													? "bg-green-500/20 text-green-900"
-													: data.active === 2
-													? "bg-yellow text-white"
+													: dateToActivity(data.lastAttendance) === 2
+													? "bg-[#ffea96] text-[#816700]"
 													: "bg-red-500/20 text-red-900"
 											} uppercase rounded-md select-none whitespace-nowrap`}
 										>
 											<span className="">
-												{data.active === 1
+												{dateToActivity(data.lastAttendance) === 1
 													? "Activo"
-													: data.active === 2
+													: dateToActivity(data.lastAttendance) === 2
 													? "Casi Activo"
 													: "Menos Activo"}
 											</span>
@@ -439,6 +493,12 @@ export default function Table({
 				</table>
 			</div>
 			{showModalFile && <ModalFile setShowModalFile={setShowModalFile} />}
+			{showModalDates && (
+				<ModalDates
+					setShowModalDates={setShowModalDates}
+					id={selectedMiembro}
+				/>
+			)}
 		</div>
 	);
 }

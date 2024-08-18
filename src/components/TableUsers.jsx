@@ -15,20 +15,24 @@ export default function TableUsers({
 	const [sortDirection, setSortDirection] = useState("asc");
 
 	const columnMap = {
-		Miembro: "name",
-		Llamamiento: "calling",
+		Usuario: "name",
 		Estado: "active",
-		"Ultima Asistencia": "lastAttendance",
 	};
 
 	// Función de búsqueda
 	const filteredData = useMemo(() => {
+		const searchString = searchTerm.toLowerCase().trim();
+		if (!searchString) return data;
+
 		return data.filter((item) => {
-			const searchString = searchTerm.toLowerCase();
+			const name = item.name?.toLowerCase() || "";
+			const email = item.email?.toLowerCase() || "";
+			const activeStatus = item.active ? "activo" : "inactivo";
+
 			return (
-				item.name.toLowerCase().includes(searchString) ||
-				item.email.toLowerCase().includes(searchString) ||
-				(item.active ? "activo" : "menos activo").includes(searchString)
+				name.includes(searchString) ||
+				email.includes(searchString) ||
+				activeStatus.includes(searchString)
 			);
 		});
 	}, [data, searchTerm]);
@@ -73,7 +77,7 @@ export default function TableUsers({
 		}
 
 		return result;
-	}, [data, sortColumn, sortDirection]);
+	}, [filteredData, sortColumn, sortDirection]);
 
 	// Función para manejar el ordenamiento
 	const handleSort = (column) => {

@@ -103,10 +103,12 @@ export default function Miembros() {
 					btn2="Añadir Miembro"
 					option1="Todos"
 					option2="Activos"
-					option3="Menos Activos"
+					option3="Casi Activos"
+					option4="Menos Activos"
 					headers={[
 						"Miembro",
 						"Llamamiento",
+						"Organización",
 						"Estado",
 						"Ultima Asistencia",
 						"Acciones",
